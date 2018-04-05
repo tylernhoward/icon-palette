@@ -1,0 +1,23 @@
+{
+  "name": "icon-palette",
+  "version": "0.2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tylernhoward/icon-palette"
+  },
+  "author": {
+    "name": "Tyler Howard",
+    "email": "tylernhoward@gmail.com"
+  },
+  "keywords": [
+    "javascript",
+    "color",
+    "image recognition",
+    "canvas"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "color-thief-browser": "^2.0.2"
+  }
+}
