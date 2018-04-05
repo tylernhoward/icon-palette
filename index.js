@@ -12,12 +12,12 @@ module.exports = {
      */
     getPalette: async function (sourceImage, colors, strip) {
         var colorThief = new ColorThief();
-        var image = await createImage();
+        var image = await this.createImage();
         image.src = sourceImage;
         colors = colors || 8;
         var palette = colorThief.getPalette(image, 7);
         if(strip === true){ 
-            palette = stripWhites() 
+            palette = this.stripWhites() 
         } 
         palette = palette.slice(0, colors);
         return palette
@@ -30,7 +30,7 @@ module.exports = {
      */
     getMainColor: async function (sourceImage) {
         var colorThief = new ColorThief();
-        var image = await createImage();
+        var image = await this.createImage();
         image.src = sourceImage;
         return colorThief.getColor(image);
     },
@@ -86,7 +86,7 @@ module.exports = {
      */
     findLogoByName: async function (company) {
         try {
-            const response = await axios.get(API_URL + company);
+            const response = await axios.get(COMPANY_URL + company);
             const data = response.data;
             return data[0].logo;
         } catch (error) {
