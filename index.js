@@ -10,7 +10,7 @@ module.exports = {
      * @param {string} sourceImage
      * @return {string}
      */
-    getPalette: async function (sourceImage, colors, strip) {
+    getPalette: async function (sourceImage, colors, strip, sort) {
         var colorThief = new ColorThief();
         var image = await this.createImage();
         image.src = sourceImage;
@@ -20,7 +20,11 @@ module.exports = {
             palette = this.stripWhites(palette) 
         } 
         palette = palette.slice(0, colors);
-        palette = this.sortByBrightness(palette);
+        if(sort == "color"){
+            palette = this.sortByColor(palette);
+        }else if (sort == "brightness"){
+            palette = this.sortByBrightness(palette);
+        }
         return palette
     },
 
@@ -97,7 +101,7 @@ module.exports = {
         });
         return palette;
     },
-    
+
     /**
      * Sorts by the ROYGBIV spectrum
      * @param  {array} palette
