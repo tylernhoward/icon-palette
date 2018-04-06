@@ -11,13 +11,14 @@ module.exports = {
      * @return {string}
      */
     getPalette: async function (sourceImage, colors, strip, sort) {
+        var palette = [];
         var colorThief = new ColorThief();
         var image = await this.createImage();
         image.src = sourceImage;
         colors = colors || 7;
-        var palette = colorThief.getPalette(image, 7);
+        palette = colorThief.getPalette(image, 7);
         if(strip == true){ 
-            palette = this.stripWhites(palette) 
+            palette = await this.stripWhites(palette) 
         } 
         palette = palette.slice(0, colors);
         if(sort == "color"){
