@@ -1,123 +1,132 @@
-'use strict';
-const ColorThief = require('color-thief-browser');
-const axios = require("axios");
+import * as ColorThief from 'color-thief-browser';
+import axios, { AxiosRequestConfig, AxiosPromise } from 'axios';
 const COMPANY_URL = "https://autocomplete.clearbit.com/v1/companies/suggest?query=";
 const LOGO_URL = "https://logo.clearbit.com/";
 const WHITE = 230;
-module.exports = {
+export class IconPalette{
     /**
      * Returns palette of 3 colors from image
      * @param {string} sourceImage
      * @return {string}
      */
-    getPalette: async function (sourceImage, colors, strip, sort) {
-        var palette = [];
-        var colorThief = new ColorThief();
-        var image = await this.createImage();
+    getPalette(sourceImage: string, colors: number, strip?: boolean, sort?:string) {
+        let palette = new Array();
+        let colorThief = new ColorThief();
+        let image = this.createImage();
         image.src = sourceImage;
         colors = colors || 7;
+        // TODO: I have no idea. 
         palette = colorThief.getPalette(image, 7);
-        if(strip == true){ 
-            palette = await this.stripWhites(palette) 
-        } 
+        palette = this.cleanUpPalette(palette, colors, strip, sort);
+        return palette;
+    }
+    cleanUpPalette(palette: Array<any>,colors:number, strip?:boolean, sort?:string, ) {
+        if (strip == true) {
+            palette = this.stripWhites(palette)
+        }
         palette = palette.slice(0, colors);
-        if(sort == "color"){
+        if (sort == "color") {
             palette = this.sortByColor(palette);
-        }else if (sort == "brightness"){
+        } else if (sort == "brightness") {
             palette = this.sortByBrightness(palette);
         }
         return palette
-    },
+    }
 
     /**
      * Gets dominant color in image
      * @param {string} sourceImage
      * @return {string}
      */
-    getMainColor: async function (sourceImage) {
-        var colorThief = new ColorThief();
-        var image = await this.createImage();
+    getMainColor(sourceImage:string) {
+        let colorThief = new ColorThief();
+        let image = this.createImage();
         image.src = sourceImage;
-        var color = colorThief.getColor(image);
         return colorThief.getColor(image);
-    },
+    }
 
     /**
      * Helper method to create image canvas
      * 
      * @return {Image}
      */
-    createImage: function () {
-       var image = new Image;
-       image.crossOrigin = "anonymous";
-       image.width = 32;
-       image.height = 32;
-       //image.onload = function () {};
-       return image
-    },
+    createImage() {
+        let image = new Image;
+        image.crossOrigin = "anonymous";
+        image.width = 32;
+        image.height = 32;
+        //image.onload = function () {};
+        return image
+    }
 
     /**
      * Strips white hues out of palette array.
      * @param  {array} palette
      * @return {array}
      */
-    stripWhites: function (palette) {
-        var result = [];
-        for(var i = 0; i < palette.length; i++){
-            var color = palette[i];
+    stripWhites(palette:Array<any>) {
+        let result = new Array();
+        for (let i = 0; i < palette.length; i++) {
+            let color = palette[i];
             if (!(color[0] > WHITE && color[1] > WHITE && color[2] > WHITE)) {
                 result.push(palette[i]);
             }
         }
         return result;
-    },
+    }
 
     /**
      * Converts color RGB array to hex string
-     * @param  {array} color
+     * @param  {array} colors
      * @return {String}
      */
-    convertToHex: function (color) {
-        var hex = "";
-        for(var i = 0; i < color.length; i++){
-            c = color[i].toString(16);
+    convertToHex(color:Array<any>) {
+        let hex = "";
+        for (let i = 0; i < color.length; i++) {
+            let c = color[i].toString(16);
             hex = hex + (c.length == 1 ? "0" + c : c);
         }
         return hex;
-    },
+    }
 
     /**
      * Sorts by brightness
      * @param  {array} palette
      * @return {array}
      */
-    sortByBrightness: function(palette){
-        var sumColor = function(color) {
+    sortByBrightness(palette: Array<any>) {
+        let sumColor = function (color:Array<any>) {
             // To calculate relative luminance under sRGB and RGB colorspaces that use Rec. 709:
             return 0.2126 * color[0] + 0.7152 * color[1] + 0.0722 * color[2];
         }
 
         palette.sort(function (a, b) {
-            return sumColor(a) > sumColor(b);
+            return (sumColor(a) - sumColor(b));
         });
         return palette;
-    },
+    }
 
     /**
      * Sorts by the ROYGBIV spectrum
      * @param  {array} palette
      * @return {array}
      */
-    sortByColor: function (palette){
-        var rgbToHsl = function(c) {
-            var r = c[0] / 255, g = c[1] / 255, b = c[2] / 255;
-            var max = Math.max(r, g, b), min = Math.min(r, g, b);
-            var h, s, l = (max + min) / 2;
+    sortByColor(palette: Array<any>) {
+        let rgbToHsl = function (c:Array<any>) {
+            let r = c[0] / 255;
+            let g = c[1] / 255;
+            let b = c[2] / 255;
+            let max = Math.max(r, g, b)
+            let min = Math.min(r, g, b);
+            let h = (max + min) / 2;
+            let s = (max + min) / 2;
+            let l = (max + min) / 2;
+
 
             if (max == min) {
                 h = s = 0; // achromatic
             } else {
-                var d = max - min;
+                let d = max - min;
                 s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
                 switch (max) {
                     case r: h = (g - b) / d + (g < b ? 6 : 0); break;
@@ -128,7 +137,7 @@ module.exports = {
             }
             return new Array(h * 360, s * 100, l * 100);
         };
-        var sorted = [] 
+        let sorted = []
         sorted = palette.map(function (c, i) {
             // Convert to HSL and keep track of original indices
             return { color: rgbToHsl(c), index: i };
@@ -140,32 +149,32 @@ module.exports = {
             return palette[data.index];
         });
         return sorted;
-    },
+    }
 
     /**
      * Finds a logo URL from a company name
      * @param  {String} company
      * @return {String}
      */
-    findLogoByName: async function (company) {
+    async findLogoByName(company:string) {
         try {
-            const response = await axios.get(COMPANY_URL + company);
+            const response = await axios.get(COMPANY_URL + company)
             const data = response.data;
             return data[0].logo ? data[0].logo : null;
         } catch (error) {
             console.log(error);
             return null;
         }
-    },
+    }
 
     /**
      * Checks if logo exists and returns logo URL if true
      * @param  {String} URL
      * @return {String}
      */
-    findLogoByURL: async function (URL) {
+    async findLogoByURL(URL:string) {
         try {
-            const response = await axios.get(LOGO_URL + company);
+            const response = await axios.get(LOGO_URL + URL);
             const data = response.data;
             return data ? data : null;
         } catch (error) {
@@ -173,4 +182,4 @@ module.exports = {
             return null;
         }
     }
-};
+}
