@@ -1,29 +1,31 @@
-export declare class IconPalette {
+export default class IconPalette {
     /**
      * Returns palette of 3 colors from image
      * @param {string} sourceImage
      * @return {string}
      */
-    getPalette(sourceImage: string, colors: number, strip?: boolean, sort?: string): any[];
-    cleanUpPalette(palette: Array<any>, colors: number, strip?: boolean, sort?: string): any[];
+    getPalette(sourceImage: string, colors: number, strip?: boolean, sort?: string): Promise<Array<any>>;
+    private fetchColors(image);
+    private cleanUpPalette(palette, colors?, strip?, sort?);
     /**
      * Gets dominant color in image
      * @param {string} sourceImage
      * @return {string}
      */
-    getMainColor(sourceImage: string): any;
+    getMainColor(sourceImage: string): Promise<Array<any>>;
+    private fetchColor(image);
     /**
      * Helper method to create image canvas
      *
      * @return {Image}
      */
-    createImage(): HTMLImageElement;
+    private createImage(sourceImage);
     /**
      * Strips white hues out of palette array.
      * @param  {array} palette
      * @return {array}
      */
-    stripWhites(palette: Array<any>): any[];
+    private stripWhites(palette);
     /**
      * Converts color RGB array to hex string
      * @param  {array} colors
@@ -35,23 +37,23 @@ export declare class IconPalette {
      * @param  {array} palette
      * @return {array}
      */
-    sortByBrightness(palette: Array<any>): any[];
+    private sortByBrightness(palette);
     /**
      * Sorts by the ROYGBIV spectrum
      * @param  {array} palette
      * @return {array}
      */
-    sortByColor(palette: Array<any>): any[];
+    private sortByColor(palette);
     /**
      * Finds a logo URL from a company name
      * @param  {String} company
      * @return {String}
      */
-    findLogoByName(company: string): Promise<any>;
+    findLogoByName(company: string): Promise<string>;
     /**
      * Checks if logo exists and returns logo URL if true
      * @param  {String} URL
      * @return {String}
      */
-    findLogoByURL(URL: string): Promise<any>;
+    findLogoByURL(URL: string): Promise<string>;
 }

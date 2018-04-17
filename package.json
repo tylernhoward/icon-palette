@@ -1,8 +1,8 @@
 {
   "name": "icon-palette",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "A Node.js module to return a color palette from the primary colors in a logo",
-  "main": "dist/index.js",
+  "main": "dist/index",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc"
@@ -24,9 +24,10 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.18.0",
-    "color-thief-browser": "^2.0.2"
+    "color-thief-standalone": "^1.0.3"
   },
   "devDependencies": {
+    "@types/node": "^9.6.5",
     "typescript": "^2.8.1"
   }
 }

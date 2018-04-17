@@ -1,33 +1,39 @@
-import * as ColorThief from 'color-thief-browser';
+import ColorThief from 'color-thief-standalone';
 import axios, { AxiosRequestConfig, AxiosPromise } from 'axios';
 const COMPANY_URL = "https://autocomplete.clearbit.com/v1/companies/suggest?query=";
 const LOGO_URL = "https://logo.clearbit.com/";
 const WHITE = 230;
-export class IconPalette{
+export default class IconPalette{
     /**
      * Returns palette of 3 colors from image
      * @param {string} sourceImage
      * @return {string}
      */
-    getPalette(sourceImage: string, colors: number, strip?: boolean, sort?:string) {
-        let palette = new Array();
-        let colorThief = new ColorThief();
-        let image = this.createImage();
-        image.src = sourceImage;
+    async getPalette(sourceImage: string, colors: number, strip?: boolean, sort?:string): Promise<Array<any>> {
+        let palette: Array<any> = [];
+        let image = await this.createImage(sourceImage);
         colors = colors || 7;
-        // TODO: I have no idea. 
-        palette = colorThief.getPalette(image, 7);
+        palette = await this.fetchColors(image);
         palette = this.cleanUpPalette(palette, colors, strip, sort);
         return palette;
     }
-    cleanUpPalette(palette: Array<any>,colors:number, strip?:boolean, sort?:string, ) {
-        if (strip == true) {
+    private fetchColors(image:any): Promise<Array<any>> {
+        let colorThief = new ColorThief();
+        return new Promise((resolve,reject) => {
+            image.onload = () => {
+                let result = colorThief.getPalette(image);
+                resolve(result);
+            };
+        }); 
+    }
+    private cleanUpPalette(palette: Array<any>, colors?: number, strip?: boolean, sort?: string): Array<any> {
+        if (strip === true) {
             palette = this.stripWhites(palette)
         }
         palette = palette.slice(0, colors);
-        if (sort == "color") {
+        if (sort === "color") {
             palette = this.sortByColor(palette);
-        } else if (sort == "brightness") {
+        } else if (sort === "brightness") {
             palette = this.sortByBrightness(palette);
         }
         return palette
@@ -38,11 +44,18 @@ export class IconPalette{
      * @param {string} sourceImage
      * @return {string}
      */
-    getMainColor(sourceImage:string) {
+    async getMainColor(sourceImage:string): Promise<Array<any>> {
+        let image = await this.createImage(sourceImage);
+        return await this.fetchColor(image);
+    }
+    private fetchColor(image: any): Promise<Array<any>> {
         let colorThief = new ColorThief();
-        let image = this.createImage();
-        image.src = sourceImage;
-        return colorThief.getColor(image);
+        return new Promise((resolve, reject) => {
+            image.onload = () => {
+                let result = colorThief.getColor(image);
+                resolve(result);
+            };
+        });
     }
 
     /**
@@ -50,12 +63,12 @@ export class IconPalette{
      * 
      * @return {Image}
      */
-    createImage() {
+    private createImage(sourceImage:string):any {
         let image = new Image;
         image.crossOrigin = "anonymous";
         image.width = 32;
         image.height = 32;
-        //image.onload = function () {};
+        image.src = sourceImage;
         return image
     }
 
@@ -64,7 +77,7 @@ export class IconPalette{
      * @param  {array} palette
      * @return {array}
      */
-    stripWhites(palette:Array<any>) {
+    private stripWhites(palette: Array<any>): Array<any>{
         let result = new Array();
         for (let i = 0; i < palette.length; i++) {
             let color = palette[i];
@@ -80,7 +93,7 @@ export class IconPalette{
      * @param  {array} colors
      * @return {String}
      */
-    convertToHex(color:Array<any>) {
+    convertToHex(color:Array<any>):string {
         let hex = "";
         for (let i = 0; i < color.length; i++) {
             let c = color[i].toString(16);
@@ -94,12 +107,11 @@ export class IconPalette{
      * @param  {array} palette
      * @return {array}
      */
-    sortByBrightness(palette: Array<any>) {
+    private sortByBrightness(palette: Array<any>): Array<any> {
         let sumColor = function (color:Array<any>) {
             // To calculate relative luminance under sRGB and RGB colorspaces that use Rec. 709:
             return 0.2126 * color[0] + 0.7152 * color[1] + 0.0722 * color[2];
         }
-
         palette.sort(function (a, b) {
             return (sumColor(a) - sumColor(b));
         });
@@ -111,7 +123,7 @@ export class IconPalette{
      * @param  {array} palette
      * @return {array}
      */
-    sortByColor(palette: Array<any>) {
+    private sortByColor(palette: Array<any>): Array<any> {
         let rgbToHsl = function (c:Array<any>) {
             let r = c[0] / 255;
             let g = c[1] / 255;
@@ -156,14 +168,14 @@ export class IconPalette{
      * @param  {String} company
      * @return {String}
      */
-    async findLogoByName(company:string) {
+    async findLogoByName(company:string): Promise<string> {
         try {
             const response = await axios.get(COMPANY_URL + company)
             const data = response.data;
             return data[0].logo ? data[0].logo : null;
         } catch (error) {
             console.log(error);
-            return null;
+            return "";
         }
     }
 
@@ -172,14 +184,14 @@ export class IconPalette{
      * @param  {String} URL
      * @return {String}
      */
-    async findLogoByURL(URL:string) {
+    async findLogoByURL(URL:string): Promise<string> {
         try {
             const response = await axios.get(LOGO_URL + URL);
             const data = response.data;
             return data ? data : null;
         } catch (error) {
             console.log(error);
-            return null;
+            return "";
         }
     }
 }
