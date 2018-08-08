@@ -45,13 +45,13 @@ class IconPalette {
         if (strip === true) {
             palette = this.stripWhites(palette);
         }
-        palette = palette.slice(0, colors);
         if (sort === "color") {
             palette = this.sortByColor(palette);
         }
         else if (sort === "brightness") {
             palette = this.sortByBrightness(palette);
         }
+        palette = palette.slice(0, colors);
         return palette;
     }
     /**
@@ -108,8 +108,9 @@ class IconPalette {
      * @return {String}
      */
     convertToHex(color) {
-        let hex = "";
+        let hex = "#";
         for (let i = 0; i < color.length; i++) {
+            console.log(color[i]);
             let c = color[i].toString(16);
             hex = hex + (c.length == 1 ? "0" + c : c);
         }

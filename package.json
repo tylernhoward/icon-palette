@@ -1,6 +1,6 @@
 {
   "name": "icon-palette",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "A Node.js module to return a color palette from the primary colors in a logo",
   "main": "dist/index",
   "types": "dist/index.d.ts",
